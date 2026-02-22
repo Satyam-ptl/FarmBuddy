@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'FarmBuddy_Backend.tasks',
     'rest_framework',
     'corsheaders',
-    'mysqlclient',
 ]
 
 MIDDLEWARE = [
