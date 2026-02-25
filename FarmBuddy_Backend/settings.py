@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS middleware - must be before CommonMiddleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -121,3 +122,75 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ==================== CORS CONFIGURATION ====================
+# CORS (Cross-Origin Resource Sharing) allows Flutter app to connect to Django API
+
+# Allow all origins during development (change this in production!)
+CORS_ALLOW_ALL_ORIGINS = True  # Allow requests from any domain (Flutter app, web browser, etc.)
+
+# For production, use specific origins instead:
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",  # React app
+#     "http://127.0.0.1:8080",  # Flutter web
+#     "https://your-production-domain.com",
+# ]
+
+# Allow credentials (cookies, authorization headers)
+CORS_ALLOW_CREDENTIALS = True
+
+# Allow all HTTP methods
+CORS_ALLOW_METHODS = [
+    'DELETE',  # For deleting resources
+    'GET',     # For reading data
+    'OPTIONS', # For preflight requests
+    'PATCH',   # For partial updates
+    'POST',    # For creating resources
+    'PUT',     # For full updates
+]
+
+# Allow all headers
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# ==================== REST FRAMEWORK CONFIGURATION ====================
+# Configuration for Django REST Framework
+
+REST_FRAMEWORK = {
+    # Pagination settings
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,  # Default number of items per page
+    
+    # Authentication (currently allowing unauthenticated access for development)
+    # In production, enable authentication:
+    # 'DEFAULT_AUTHENTICATION_CLASSES': [
+    #     'rest_framework.authentication.SessionAuthentication',
+    #     'rest_framework.authentication.TokenAuthentication',
+    # ],
+    
+    # Permissions (currently allowing anyone for development)
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # No authentication required
+    ],
+    
+    # Filtering
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
+}
+
