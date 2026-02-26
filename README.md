@@ -15,6 +15,7 @@
 - [Architecture](#-architecture)
 - [Installation](#-installation)
 - [Quick Start](#-quick-start)
+- [Flutter (Windows) Setup](#-flutter-windows-setup)
 - [API Documentation](#-api-documentation)
 - [Project Structure](#-project-structure)
 - [Database Models](#-database-models)
@@ -178,6 +179,61 @@ python manage.py runserver 0.0.0.0:8000
 **Server will start at:** `http://localhost:8000`
 
 ✅ **Backend is now running!**
+
+---
+
+## 📱 Flutter (Windows) Setup
+
+Use this if your Flutter frontend lives in a separate folder (for example: `D:\git\farm_buddy_app`) and connects to this backend.
+
+### Prerequisites
+
+- Flutter SDK installed (example: `C:\Users\kaush\flutter`)
+- Android Studio installed (for SDK + JDK)
+- Android SDK path available at `%LOCALAPPDATA%\Android\Sdk`
+
+### One-time persistent environment variables (PowerShell)
+
+```powershell
+setx ANDROID_HOME "$env:LOCALAPPDATA\Android\Sdk"
+setx ANDROID_SDK_ROOT "$env:LOCALAPPDATA\Android\Sdk"
+setx JAVA_HOME "C:\Program Files\Android\Android Studio\jbr"
+```
+
+Close and reopen PowerShell after running `setx`.
+
+### Session PATH setup (new terminal)
+
+```powershell
+$flutterBin = 'C:\Users\kaush\flutter\bin'
+$sdk = $env:ANDROID_HOME
+$jdk = $env:JAVA_HOME
+
+$env:Path += ';' + $flutterBin
+$env:Path += ';' + (Join-Path $sdk 'platform-tools')
+$env:Path += ';' + (Join-Path $sdk 'cmdline-tools\latest\bin')
+$env:Path += ';' + (Join-Path $jdk 'bin')
+```
+
+### Validate toolchain
+
+```powershell
+java -version
+1..50 | ForEach-Object { 'y' } | flutter doctor --android-licenses
+flutter doctor
+```
+
+Expected result: Android toolchain should show ✅. Visual Studio can remain ❌ unless you need Windows desktop builds.
+
+### Run Flutter frontend
+
+```powershell
+cd D:\git\farm_buddy_app
+flutter pub get
+flutter run -d chrome
+```
+
+For full backend/frontend wiring details, see `FLUTTER_DJANGO_INTEGRATION.md`.
 
 ---
 
