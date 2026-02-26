@@ -1,5 +1,6 @@
 # Import serializer classes from Django REST Framework
 from rest_framework import serializers
+from django.utils import timezone
 
 # Import models to serialize
 from .models import WeatherData, FarmersWeatherAlert, WeatherForecast
@@ -47,8 +48,7 @@ class FarmersWeatherAlertSerializer(serializers.ModelSerializer):
         if not obj.expires_at:  # If no expiry set
             return True  # Still active
         
-        from datetime import datetime
-        now = datetime.now()  # Current date/time
+        now = timezone.now()  # Current date/time (timezone-aware)
         return now < obj.expires_at  # True if before expiry
     
     def get_time_until_expiry(self, obj):
@@ -56,8 +56,7 @@ class FarmersWeatherAlertSerializer(serializers.ModelSerializer):
         if not obj.expires_at:  # If no expiry
             return None  # Unknown
         
-        from datetime import datetime
-        now = datetime.now()  # Current date/time
+        now = timezone.now()  # Current date/time (timezone-aware)
         difference = obj.expires_at - now  # Calculate time remaining
         hours = difference.total_seconds() / 3600  # Convert to hours
         return round(hours, 1)  # Round to 1 decimal place
@@ -133,8 +132,7 @@ class WeatherAlertDetailSerializer(serializers.ModelSerializer):
         if not obj.expires_at:
             return True
         
-        from datetime import datetime
-        now = datetime.now()
+        now = timezone.now()
         return now < obj.expires_at
     
     def get_recommendation(self, obj):

@@ -16,6 +16,13 @@ class WeatherDataViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ['location']  # Search by location name
     ordering = ['-recorded_at']  # Newest first
 
+    def get_queryset(self):
+        queryset = WeatherData.objects.all().order_by('-recorded_at')
+        location = self.request.query_params.get('location')
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+        return queryset
+
 # Weather Alert ViewSet - Farmer weather alerts
 class FarmersWeatherAlertViewSet(viewsets.ModelViewSet):
     queryset = FarmersWeatherAlert.objects.all()  # All alerts
@@ -25,6 +32,13 @@ class FarmersWeatherAlertViewSet(viewsets.ModelViewSet):
     search_fields = ['farmer__first_name', 'alert_type']  # Search
     ordering = ['-issued_at']  # Newest first
 
+    def get_queryset(self):
+        queryset = FarmersWeatherAlert.objects.all().order_by('-issued_at')
+        farmer_id = self.request.query_params.get('farmer')
+        if farmer_id:
+            queryset = queryset.filter(farmer_id=farmer_id)
+        return queryset
+
 # Forecast ViewSet - Weather predictions
 class WeatherForecastViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = WeatherForecast.objects.all()  # All forecasts
@@ -33,3 +47,10 @@ class WeatherForecastViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]  # Filter
     search_fields = ['location']  # Search by location
     ordering = ['forecast_date']  # By date (earliest first)
+
+    def get_queryset(self):
+        queryset = WeatherForecast.objects.all().order_by('forecast_date')
+        location = self.request.query_params.get('location')
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+        return queryset

@@ -48,6 +48,22 @@ class CropViewSet(viewsets.ModelViewSet):
     
     # ordering = Default sort order
     ordering = ['-created_at']  # Show newest crops first by default
+
+    def get_queryset(self):
+        queryset = Crop.objects.all()
+
+        season = self.request.query_params.get('season')
+        soil_type = self.request.query_params.get('soil_type')
+        state = self.request.query_params.get('state')
+
+        if season:
+            queryset = queryset.filter(season=season)
+        if soil_type:
+            queryset = queryset.filter(soil_type=soil_type)
+        if state:
+            queryset = queryset.filter(description__icontains=state)
+
+        return queryset
     
     # ACTION ENDPOINT: Details with related data
     @action(detail=True, methods=['get'])  # Custom action for GET request at /crops/1/details/
@@ -96,6 +112,8 @@ class CropViewSet(viewsets.ModelViewSet):
     def recommendations(self, request):
         # Get season from URL parameter
         season = request.query_params.get('season', None)  # ?season=Kharif
+        soil_type = request.query_params.get('soil_type', None)  # ?soil_type=Loamy
+        state = request.query_params.get('state', None)  # ?state=Maharashtra
         
         if not season:  # If no season
             return Response(
@@ -103,10 +121,17 @@ class CropViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Get recommendations for this season
+        # Get recommendations for this season (and optional soil)
         recommendations = CropRecommendation.objects.filter(
-            recommended_season=season  # Filter by season
-        ).order_by('-priority_score')  # Sort by most important first
+            recommended_season=season
+        )
+
+        if soil_type:
+            recommendations = recommendations.filter(crop__soil_type=soil_type)
+        if state:
+            recommendations = recommendations.filter(crop__description__icontains=state)
+
+        recommendations = recommendations.order_by('-priority_score')
         
         # Paginate
         page = self.paginate_queryset(recommendations)
