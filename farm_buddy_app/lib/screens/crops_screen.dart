@@ -21,6 +21,16 @@ class _CropsScreenState extends State<CropsScreen> {
   String selectedSoil = 'All';
   String selectedState = '';
   final TextEditingController stateController = TextEditingController();
+  final TextEditingController landAreaController = TextEditingController(text: '1');
+
+  int? compareCropAId;
+  int? compareCropBId;
+  int? calculatorCropId;
+
+  double? calculatedSeedKg;
+  double? calculatedFertilizerKg;
+  double? calculatedWaterLiters;
+  String? calculatorError;
 
   final List<String> seasons = ['All', 'Kharif', 'Rabi', 'Summer'];
   final List<String> soils = ['All', 'Clay', 'Sandy', 'Loamy', 'Mixed'];
@@ -49,6 +59,12 @@ class _CropsScreenState extends State<CropsScreen> {
       final loadedCrops = cropsJson
           .map((json) => Crop.fromJson(Map<String, dynamic>.from(json as Map)))
           .toList();
+
+      if (loadedCrops.isNotEmpty) {
+        compareCropAId ??= loadedCrops.first.id;
+        compareCropBId ??= loadedCrops.length > 1 ? loadedCrops[1].id : loadedCrops.first.id;
+        calculatorCropId ??= loadedCrops.first.id;
+      }
 
       setState(() {
         crops = loadedCrops;
@@ -224,6 +240,8 @@ class _CropsScreenState extends State<CropsScreen> {
                 ],
               ),
             ),
+          _buildCompareSection(),
+          _buildInputCalculatorSection(),
           Expanded(
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -329,8 +347,242 @@ class _CropsScreenState extends State<CropsScreen> {
     }
   }
 
+  Crop? _findCropById(int? cropId) {
+    if (cropId == null) return null;
+    for (final crop in crops) {
+      if (crop.id == cropId) return crop;
+    }
+    return null;
+  }
+
+  double _seedRatePerHectare(String cropName) {
+    final name = cropName.toLowerCase();
+    if (name.contains('rice')) return 45;
+    if (name.contains('wheat')) return 100;
+    if (name.contains('maize') || name.contains('corn')) return 20;
+    if (name.contains('cotton')) return 20;
+    if (name.contains('soy')) return 75;
+    if (name.contains('mustard')) return 6;
+    if (name.contains('groundnut') || name.contains('peanut')) return 130;
+    return 40;
+  }
+
+  double _fertilizerRatePerHectare(Crop crop) {
+    final hint = crop.fertilizerRequired.toLowerCase();
+    if (hint.contains('high')) return 220;
+    if (hint.contains('medium')) return 150;
+    if (hint.contains('low')) return 90;
+    return 140;
+  }
+
+  void _calculateInputs() {
+    final area = double.tryParse(landAreaController.text.trim());
+    final crop = _findCropById(calculatorCropId);
+
+    if (area == null || area <= 0 || crop == null) {
+      setState(() {
+        calculatorError = 'Enter valid land area and crop.';
+        calculatedSeedKg = null;
+        calculatedFertilizerKg = null;
+        calculatedWaterLiters = null;
+      });
+      return;
+    }
+
+    final seedKg = _seedRatePerHectare(crop.name) * area;
+    final fertilizerKg = _fertilizerRatePerHectare(crop) * area;
+    final totalGrowthWeeks = crop.growthDurationDays / 7.0;
+    final totalWaterMm = crop.waterRequiredMmPerWeek * totalGrowthWeeks;
+    final waterLiters = totalWaterMm * area * 10000;
+
+    setState(() {
+      calculatorError = null;
+      calculatedSeedKg = seedKg;
+      calculatedFertilizerKg = fertilizerKg;
+      calculatedWaterLiters = waterLiters;
+    });
+  }
+
+  Widget _buildCompareSection() {
+    if (crops.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final cropA = _findCropById(compareCropAId);
+    final cropB = _findCropById(compareCropBId);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Compare Crops',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButton<int>(
+                      value: compareCropAId,
+                      isExpanded: true,
+                      items: crops
+                          .map((crop) => DropdownMenuItem<int>(
+                                value: crop.id,
+                                child: Text(crop.name),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          compareCropAId = value;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: DropdownButton<int>(
+                      value: compareCropBId,
+                      isExpanded: true,
+                      items: crops
+                          .map((crop) => DropdownMenuItem<int>(
+                                value: crop.id,
+                                child: Text(crop.name),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          compareCropBId = value;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              if (cropA != null && cropB != null) ...[
+                const SizedBox(height: 8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    columns: [
+                      const DataColumn(label: Text('Metric')),
+                      DataColumn(label: Text(cropA.name)),
+                      DataColumn(label: Text(cropB.name)),
+                    ],
+                    rows: [
+                      DataRow(cells: [
+                        const DataCell(Text('Season')),
+                        DataCell(Text(cropA.season)),
+                        DataCell(Text(cropB.season)),
+                      ]),
+                      DataRow(cells: [
+                        const DataCell(Text('Soil')),
+                        DataCell(Text(cropA.soilType)),
+                        DataCell(Text(cropB.soilType)),
+                      ]),
+                      DataRow(cells: [
+                        const DataCell(Text('Duration (days)')),
+                        DataCell(Text('${cropA.growthDurationDays}')),
+                        DataCell(Text('${cropB.growthDurationDays}')),
+                      ]),
+                      DataRow(cells: [
+                        const DataCell(Text('Yield (kg/ha)')),
+                        DataCell(Text(cropA.expectedYieldPerHectare.toStringAsFixed(1))),
+                        DataCell(Text(cropB.expectedYieldPerHectare.toStringAsFixed(1))),
+                      ]),
+                      DataRow(cells: [
+                        const DataCell(Text('Water (mm/week)')),
+                        DataCell(Text(cropA.waterRequiredMmPerWeek.toStringAsFixed(1))),
+                        DataCell(Text(cropB.waterRequiredMmPerWeek.toStringAsFixed(1))),
+                      ]),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputCalculatorSection() {
+    if (crops.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Input Calculator',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(height: 8),
+              DropdownButton<int>(
+                value: calculatorCropId,
+                isExpanded: true,
+                items: crops
+                    .map((crop) => DropdownMenuItem<int>(
+                          value: crop.id,
+                          child: Text(crop.name),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    calculatorCropId = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: landAreaController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'Land area (hectares)',
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _calculateInputs,
+                  child: const Text('Calculate Inputs'),
+                ),
+              ),
+              if (calculatorError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(calculatorError!, style: const TextStyle(color: Colors.red)),
+                ),
+              if (calculatedSeedKg != null &&
+                  calculatedFertilizerKg != null &&
+                  calculatedWaterLiters != null) ...[
+                const SizedBox(height: 8),
+                Text('Seeds needed: ${calculatedSeedKg!.toStringAsFixed(1)} kg'),
+                Text('Fertilizer needed: ${calculatedFertilizerKg!.toStringAsFixed(1)} kg'),
+                Text('Water needed: ${calculatedWaterLiters!.toStringAsFixed(0)} liters'),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showCropDetails(Crop crop) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('${crop.name} - ${LocalizationService.tr('Crop Guide')}'),
@@ -408,6 +660,7 @@ class _CropsScreenState extends State<CropsScreen> {
   @override
   void dispose() {
     stateController.dispose();
+    landAreaController.dispose();
     super.dispose();
   }
 }
