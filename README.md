@@ -152,11 +152,13 @@ pip install -r requirements.txt
 ```
 
 **Required packages:**
-- `django==6.0.2` - Web framework
-- `djangorestframework` - REST API toolkit
-- `django-cors-headers` - CORS support for frontend
-- `mysqlclient` - MySQL database driver (optional)
-- `pillow` - Image processing
+- `Django==6.0.2` - Web framework
+- `djangorestframework==3.16.1` - REST API toolkit
+- `django-cors-headers==4.9.0` - CORS support for frontend
+
+**Optional packages:**
+- `Pillow` - image processing for media workflows
+- `mysqlclient` - MySQL database driver
 
 ### Step 4: Database Setup
 
