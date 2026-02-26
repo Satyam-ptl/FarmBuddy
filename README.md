@@ -1,6 +1,6 @@
-# 🌾 Farm Buddy - Django REST API Backend
+# 🌾 Farm Buddy - Full Stack Monorepo (Django + Flutter)
 
-**Farm Buddy** is a comprehensive Multi-Crop Growth Assistant backend built with Django and Django REST Framework. It provides RESTful APIs for managing crops, farmers, tasks, and weather information for agricultural applications.
+**Farm Buddy** is a comprehensive Multi-Crop Growth Assistant built as a single repository with a Django REST backend and Flutter frontend. It provides APIs and UI for managing crops, farmers, tasks, and weather information.
 
 ![Python](https://img.shields.io/badge/Python-3.14.3-blue)
 ![Django](https://img.shields.io/badge/Django-6.0.2-green)
@@ -184,7 +184,7 @@ python manage.py runserver 0.0.0.0:8000
 
 ## 📱 Flutter (Windows) Setup
 
-Use this if your Flutter frontend lives in a separate folder (for example: `D:\git\farm_buddy_app`) and connects to this backend.
+The Flutter frontend is included in this same repository at `D:\git\FarmBuddy\farm_buddy_app`.
 
 ### Prerequisites
 
@@ -228,7 +228,7 @@ Expected result: Android toolchain should show ✅. Visual Studio can remain ❌
 ### Run Flutter frontend
 
 ```powershell
-cd D:\git\farm_buddy_app
+cd D:\git\FarmBuddy\farm_buddy_app
 flutter pub get
 flutter run -d chrome
 ```

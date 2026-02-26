@@ -237,7 +237,7 @@ flutter doctor
 ### Step 1: Navigate to Project
 
 ```powershell
-cd D:\git\farm_buddy_app
+cd D:\git\FarmBuddy\farm_buddy_app
 ```
 
 ### Step 2: Install Dependencies
@@ -287,7 +287,7 @@ python manage.py runserver 0.0.0.0:8000
 ### Step 5: Run Flutter App
 
 ```powershell
-cd D:\git\farm_buddy_app
+cd D:\git\FarmBuddy\farm_buddy_app
 flutter run
 ```
 
@@ -362,7 +362,7 @@ Press `y` for all licenses
 
 **Solution:**
 ```powershell
-cd D:\git\farm_buddy_app\android
+cd D:\git\FarmBuddy\farm_buddy_app\android
 .\gradlew clean
 
 cd ..

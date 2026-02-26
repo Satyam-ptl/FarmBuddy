@@ -56,7 +56,7 @@ flutter doctor
 
 1. Navigate to the Flutter app directory:
 ```powershell
-cd D:\git\farm_buddy_app
+cd D:\git\FarmBuddy\farm_buddy_app
 ```
 
 2. Install dependencies:

@@ -71,7 +71,7 @@ REST_FRAMEWORK = {
 
 ### 2. Flutter App Setup
 
-**Location**: `D:\git\farm_buddy_app\`
+**Location**: `D:\git\FarmBuddy\farm_buddy_app\`
 
 **API Service Configuration:**
 
@@ -382,7 +382,7 @@ Quit the server with CTRL-BREAK.
 ### Terminal 2: Start Flutter App
 
 ```powershell
-cd D:\git\farm_buddy_app
+cd D:\git\FarmBuddy\farm_buddy_app
 flutter run
 ```
 

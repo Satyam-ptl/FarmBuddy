@@ -36,7 +36,7 @@ Doctor summary (to see all details, run flutter doctor -v):
 
 ```powershell
 # Navigate to Flutter app directory
-cd D:\git\farm_buddy_app
+cd D:\git\FarmBuddy\farm_buddy_app
 
 # Install all dependencies
 flutter pub get
@@ -100,7 +100,7 @@ You should see JSON data.
 
 **Open Terminal 2:**
 ```powershell
-cd D:\git\farm_buddy_app
+cd D:\git\FarmBuddy\farm_buddy_app
 flutter run
 ```
 
@@ -225,7 +225,7 @@ flutter emulators --launch <emulator_name>
 
 **Solution:**
 ```powershell
-cd D:\git\farm_buddy_app\android
+cd D:\git\FarmBuddy\farm_buddy_app\android
 .\gradlew clean
 
 cd ..
@@ -347,7 +347,7 @@ Once everything is running:
 cd D:\git\FarmBuddy ; python manage.py runserver 0.0.0.0:8000
 
 # Terminal 2 - Flutter  
-cd D:\git\farm_buddy_app ; flutter run
+cd D:\git\FarmBuddy\farm_buddy_app ; flutter run
 ```
 
 **Check if everything works:**
