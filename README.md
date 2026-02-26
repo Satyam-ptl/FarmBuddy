@@ -127,7 +127,10 @@
 ### Step 1: Clone Repository
 
 ```bash
+# Download this project from GitHub to your computer
 git clone https://github.com/Satyam-ptl/FarmBuddy.git
+
+# Move into the project folder
 cd FarmBuddy
 ```
 
@@ -135,19 +138,26 @@ cd FarmBuddy
 
 **Windows:**
 ```powershell
+# Create a virtual environment named "venv" (isolated Python workspace)
 python -m venv venv
+
+# Activate that virtual environment in this terminal
 .\venv\Scripts\Activate.ps1
 ```
 
 **macOS/Linux:**
 ```bash
+# Create a virtual environment named "venv"
 python3 -m venv venv
+
+# Activate it in this terminal session
 source venv/bin/activate
 ```
 
 ### Step 3: Install Dependencies
 
 ```bash
+# Install all required Python packages listed in requirements.txt
 pip install -r requirements.txt
 ```
 
@@ -164,9 +174,11 @@ pip install -r requirements.txt
 
 ```bash
 # Run migrations to create database tables
+# (creates/updates tables in db.sqlite3)
 python manage.py migrate
 
 # Create superuser for admin access
+# (this lets you log into /admin)
 python manage.py createsuperuser
 ```
 
@@ -175,6 +187,8 @@ Follow prompts to create admin account.
 ### Step 5: Run Development Server
 
 ```bash
+# Start Django backend server on port 8000
+# 0.0.0.0 means accessible from your machine and local network
 python manage.py runserver 0.0.0.0:8000
 ```
 
@@ -230,8 +244,13 @@ Expected result: Android toolchain should show ✅. Visual Studio can remain ❌
 ### Run Flutter frontend
 
 ```powershell
+# Go to Flutter app folder inside this same repository
 cd D:\git\FarmBuddy\farm_buddy_app
+
+# Download Flutter packages (dependencies)
 flutter pub get
+
+# Run Flutter web app in Chrome
 flutter run -d chrome
 ```
 
@@ -264,15 +283,19 @@ For full backend/frontend wiring details, see `FLUTTER_DJANGO_INTEGRATION.md`.
 
 ```bash
 # Get all crops
+# Sends a GET request to fetch crop list
 curl http://localhost:8000/api/crops/
 
 # Get specific crop
+# Replace 1 with any crop id you want to fetch
 curl http://localhost:8000/api/crops/1/
 
 # Filter crops by season
+# Shows only crops where season is Kharif
 curl http://localhost:8000/api/crops/?season=Kharif
 
 # Create new farmer (POST)
+# Sends farmer data in JSON format to backend
 curl -X POST http://localhost:8000/api/farmers/ \
   -H "Content-Type: application/json" \
   -d '{
@@ -791,6 +814,7 @@ Contributions are welcome! Please follow these steps:
 ## 📝 Documentation Files
 
 - **README.md** (this file) - Main documentation
+- **BEGINNER_FILE_GUIDE.md** - Easy explanation of each important file
 - **FLUTTER_DJANGO_INTEGRATION.md** - Flutter integration guide
 - **PROJECT_SUMMARY.md** - Complete project overview
 
