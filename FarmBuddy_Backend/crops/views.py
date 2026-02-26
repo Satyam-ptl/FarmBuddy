@@ -56,6 +56,9 @@ class CropViewSet(viewsets.ModelViewSet):
         soil_type = self.request.query_params.get('soil_type')
         state = self.request.query_params.get('state')
 
+        if state:
+            state = state.strip()
+
         if season:
             queryset = queryset.filter(season=season)
         if soil_type:
@@ -114,6 +117,9 @@ class CropViewSet(viewsets.ModelViewSet):
         season = request.query_params.get('season', None)  # ?season=Kharif
         soil_type = request.query_params.get('soil_type', None)  # ?soil_type=Loamy
         state = request.query_params.get('state', None)  # ?state=Maharashtra
+
+        if state:
+            state = state.strip()
         
         if not season:  # If no season
             return Response(

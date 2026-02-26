@@ -13,6 +13,15 @@ env/
 # Django / local runtime files
 *.log
 local_settings.py
+db.sqlite3
+*.sqlite3
+.env
+.env.*
+.pytest_cache/
+
+# Python tooling caches
+.mypy_cache/
+.ruff_cache/
 
 # IDE / OS
 .vscode/
