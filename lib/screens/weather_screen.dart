@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/weather_model.dart';  // Import Weather models
 import '../services/api_service.dart';  // Import API service
+import '../services/auth_ui_service.dart';
 import '../services/localization_service.dart';
 import 'package:intl/intl.dart';  // For date formatting
 
@@ -32,8 +33,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
     });
 
     try {
-      final alertsJson = await ApiService.getAllWeatherAlerts(pageSize: 100);
-      final weatherJson = await ApiService.getWeatherDataList(pageSize: 1);
+      final results = await Future.wait<Object>([
+        ApiService.getAllWeatherAlerts(),
+        ApiService.getWeatherDataList(),
+      ]);
+      final alertsJson = results[0] as List;
+      final weatherJson = results[1] as List;
       final List<FarmersWeatherAlert> loadedAlerts = alertsJson
           .map((json) => FarmersWeatherAlert.fromJson(Map<String, dynamic>.from(json as Map)))
           .toList();
@@ -47,6 +52,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+      final handled = await AuthUiService.handleAuthError(
+        context,
+        e,
+        message: 'Session expired. Please sign in again.',
+      );
+      if (handled) return;
       setState(() {
         errorMessage = 'Failed to load weather alerts: $e';
         isLoading = false;
@@ -60,6 +72,11 @@ class _WeatherScreenState extends State<WeatherScreen> {
       appBar: AppBar(
         title: Text(LocalizationService.tr('Weather & Alerts')),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Logout',
+            onPressed: () => AuthUiService.confirmAndLogout(context),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: loadWeatherAlerts,
@@ -88,7 +105,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                   children: [
                     if (latestWeather != null)
                       Padding(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
                         child: Card(
                           child: Padding(
                             padding: const EdgeInsets.all(12),
@@ -100,34 +117,56 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                                 const SizedBox(height: 8),
-                                Text('${LocalizationService.tr('Rainfall')}: ${latestWeather!.rainfall} mm'),
-                                Text('${LocalizationService.tr('Temperature')}: ${latestWeather!.temperature}°C'),
-                                Text('${LocalizationService.tr('Humidity')}: ${latestWeather!.humidity}%'),
+                                Row(
+                                  children: [
+                                    Expanded(child: Text('${LocalizationService.tr('Rainfall')}: ${latestWeather!.rainfall} mm')),
+                                    Expanded(child: Text('${LocalizationService.tr('Temperature')}: ${latestWeather!.temperature}°C')),
+                                    Expanded(child: Text('${LocalizationService.tr('Humidity')}: ${latestWeather!.humidity}%')),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
                         ),
                       ),
-                    Expanded(
-                      child: alerts.isEmpty
-                          ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 2, 12, 8),
+                      child: Row(
                         children: [
-                          Icon(Icons.cloud, size: 80, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text(
-                            LocalizationService.tr('No weather alerts at the moment'),
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          Expanded(
+                            child: _summaryChip('Active', alerts.where((a) => a.isActive == true).length, Colors.green),
                           ),
-                          SizedBox(height: 8),
-                          Text(
-                            LocalizationService.tr('Check back later for updates'),
-                            style: TextStyle(color: Colors.grey),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _summaryChip('Critical', alerts.where((a) => a.severity == 'Critical').length, Colors.red),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _summaryChip('Unread', alerts.where((a) => !a.isRead).length, Colors.orange),
                           ),
                         ],
                       ),
-                    )
+                    ),
+                    Expanded(
+                      child: alerts.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.cloud, size: 80, color: Colors.grey),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    LocalizationService.tr('No weather alerts at the moment'),
+                                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    LocalizationService.tr('Check back later for updates'),
+                                    style: const TextStyle(color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                            )
                           : RefreshIndicator(
                               onRefresh: loadWeatherAlerts,
                               child: ListView.builder(
@@ -142,6 +181,23 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     ),
                   ],
                 ),
+    );
+  }
+
+  Widget _summaryChip(String label, int count, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      decoration: BoxDecoration(
+        color: color.withAlpha(20),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Text('$count', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color)),
+          const SizedBox(height: 2),
+          Text(label, style: TextStyle(fontSize: 12, color: color)),
+        ],
+      ),
     );
   }
 
@@ -289,7 +345,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
   void _showAlertDetails(FarmersWeatherAlert alert) {
     final DateFormat dateFormat = DateFormat('dd MMM yyyy HH:mm');
 
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: Row(

@@ -11,9 +11,9 @@ import 'package:farm_buddy_app/main.dart';
 
 void main() {
   testWidgets('app loads dashboard smoke test', (WidgetTester tester) async {
-    await tester.pumpWidget(const FarmBuddyApp());
+    await tester.pumpWidget(const AgroAssistApp());
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Farm Buddy'), findsWidgets);
+    expect(find.textContaining('AgroAssist'), findsWidgets);
   });
 }

@@ -4,16 +4,20 @@ class FarmerTask {
   final int farmerId;  // Foreign key to Farmer
   final String farmerName;  // Farmer's name
   final int? farmerCropId;  // Foreign key to FarmerCrop (optional)
+  final int? careTaskTemplateId;  // Linked care task template (optional)
   final String? cropName;  // Crop name if task is crop-specific
   final String taskName;  // Name/title of the task
   final String description;  // Detailed task description
   final String status;  // Pending, In Progress, Completed, Overdue, Cancelled
   final DateTime? dueDate;  // When task should be completed
+  final DateTime? completedDate;  // Actual completion date
   final bool isCompleted;  // Whether task is done
   final int priority;  // Priority level (1-10)
+  final bool isPriorityManual;  // Whether priority is manually set
   final String importance;  // Low, Medium, High, Critical
   final DateTime? reminderSentAt;  // When reminder was sent
   final String? farmerNotes;  // Notes added by farmer
+  final int photoCount;  // Number of completion photos
   final int? daysRemaining;  // Calculated: days until due date
   final bool? isOverdue;  // Calculated: whether task is overdue
   final DateTime createdAt;  // When task was created
@@ -23,21 +27,25 @@ class FarmerTask {
     required this.id,
     required this.farmerId,
     required this.farmerName,
-    this.farmerCropId,
-    this.cropName,
     required this.taskName,
     required this.description,
     required this.status,
-    this.dueDate,
     required this.isCompleted,
     required this.priority,
+    required this.isPriorityManual,
     required this.importance,
+    required this.photoCount,
+    required this.createdAt,
+    required this.updatedAt,
+    this.farmerCropId,
+    this.careTaskTemplateId,
+    this.cropName,
+    this.dueDate,
+    this.completedDate,
     this.reminderSentAt,
     this.farmerNotes,
     this.daysRemaining,
     this.isOverdue,
-    required this.createdAt,
-    required this.updatedAt,
   });
 
   /// Create FarmerTask from JSON
@@ -48,6 +56,9 @@ class FarmerTask {
       farmerId: _toInt(json['farmer']),
       farmerName: _toStringValue(json['farmer_name']),
       farmerCropId: json['farmer_crop'] != null ? _toInt(json['farmer_crop']) : null,
+      careTaskTemplateId: json['care_task_template'] != null
+          ? _toInt(json['care_task_template'])
+          : null,
       cropName: json['crop_name']?.toString(),
       taskName: _toStringValue(json['task_name']),
       description: _toStringValue(json['task_description'] ?? json['description']),
@@ -55,13 +66,18 @@ class FarmerTask {
       dueDate: json['due_date'] != null 
           ? _toDateTime(json['due_date'])
           : null,
+      completedDate: json['completed_date'] != null
+          ? _toDateTime(json['completed_date'])
+          : null,
       isCompleted: _toBool(json['is_completed'], defaultValue: status == 'Completed'),
       priority: _toInt(json['priority']),
+        isPriorityManual: _toBool(json['is_priority_manual']),
       importance: _toStringValue(json['importance']),
       reminderSentAt: json['reminder_sent_at'] != null
           ? _toDateTime(json['reminder_sent_at'])
           : null,
       farmerNotes: json['farmer_notes']?.toString(),
+        photoCount: _toInt(json['photo_count']),
       daysRemaining: json['days_remaining'] != null ? _toInt(json['days_remaining']) : null,
       isOverdue: json['is_overdue'] != null ? _toBool(json['is_overdue']) : null,
       createdAt: _toDateTime(json['created_at']),
@@ -105,10 +121,13 @@ class FarmerTask {
       'task_description': description,
       'status': status,
       'due_date': dueDate?.toIso8601String(),
+      'completed_date': completedDate?.toIso8601String(),
       'is_completed': isCompleted,
       'priority': priority,
+      'is_priority_manual': isPriorityManual,
       'importance': importance,
       'farmer_notes': farmerNotes,
+      'photo_count': photoCount,
     };
   }
 }
@@ -129,8 +148,8 @@ class TaskReminder {
     required this.reminderChannel,
     required this.reminderDate,
     required this.isSent,
-    this.reminderMessage,
     required this.createdAt,
+    this.reminderMessage,
   });
 
   /// Create TaskReminder from JSON

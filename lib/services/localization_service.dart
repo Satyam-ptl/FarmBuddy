@@ -29,7 +29,8 @@ class LocalizationService {
 
   static const Map<String, Map<String, String>> _translations = {
     'English': {
-      'Farm Buddy': 'Farm Buddy',
+      'Farm Buddy': 'AgroAssist',
+      'AgroAssist': 'AgroAssist',
       'Dashboard': 'Dashboard',
       'Crops': 'Crops',
       'Farmers': 'Farmers',
@@ -52,7 +53,7 @@ class LocalizationService {
       'Harvest': 'Harvest',
       'Close': 'Close',
       'Language': 'Language',
-      'Welcome to Farm Buddy': 'Welcome to Farm Buddy',
+      'Welcome to Farm Buddy': 'Welcome to AgroAssist',
       'Your Multi-Crop Growth Assistant': 'Your Multi-Crop Growth Assistant',
       'Quick Actions': 'Quick Actions',
       'Browse Crops': 'Browse Crops',
@@ -68,7 +69,8 @@ class LocalizationService {
       'Simple Mode': 'Simple Mode',
     },
     'Hindi': {
-      'Farm Buddy': 'फार्म बडी',
+      'Farm Buddy': 'एग्रोअसिस्ट',
+      'AgroAssist': 'एग्रोअसिस्ट',
       'Dashboard': 'डैशबोर्ड',
       'Crops': 'फसलें',
       'Farmers': 'किसान',
@@ -91,7 +93,7 @@ class LocalizationService {
       'Harvest': 'कटाई',
       'Close': 'बंद करें',
       'Language': 'भाषा',
-      'Welcome to Farm Buddy': 'फार्म बडी में आपका स्वागत है',
+      'Welcome to Farm Buddy': 'एग्रोअसिस्ट में आपका स्वागत है',
       'Your Multi-Crop Growth Assistant': 'आपका मल्टी-क्रॉप ग्रोथ असिस्टेंट',
       'Quick Actions': 'त्वरित कार्य',
       'Browse Crops': 'फसलें देखें',
@@ -107,7 +109,8 @@ class LocalizationService {
       'Simple Mode': 'सरल मोड',
     },
     'Marathi': {
-      'Farm Buddy': 'फार्म बडी',
+      'Farm Buddy': 'अ‍ॅग्रोअसिस्ट',
+      'AgroAssist': 'अ‍ॅग्रोअसिस्ट',
       'Dashboard': 'डॅशबोर्ड',
       'Crops': 'पिके',
       'Farmers': 'शेतकरी',
@@ -130,7 +133,7 @@ class LocalizationService {
       'Harvest': 'कापणी',
       'Close': 'बंद',
       'Language': 'भाषा',
-      'Welcome to Farm Buddy': 'फार्म बडी मध्ये स्वागत आहे',
+      'Welcome to Farm Buddy': 'अ‍ॅग्रोअसिस्ट मध्ये स्वागत आहे',
       'Your Multi-Crop Growth Assistant': 'तुमचा मल्टी-क्रॉप सहाय्यक',
       'Quick Actions': 'जलद कृती',
       'Browse Crops': 'पिके पहा',

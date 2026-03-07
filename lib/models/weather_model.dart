@@ -57,8 +57,8 @@ class FarmersWeatherAlert {
     required this.alertType,
     required this.message,
     required this.issuedAt,
-    this.expiresAt,
     required this.isRead,
+    this.expiresAt,
     this.actionTaken,
     this.isActive,
   });

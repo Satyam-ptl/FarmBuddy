@@ -1,6 +1,6 @@
 {
-    "name": "farm_buddy_app",
-    "short_name": "farm_buddy_app",
+    "name": "AgroAssist",
+    "short_name": "AgroAssist",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

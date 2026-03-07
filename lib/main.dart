@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';  // Import home screen
+import 'screens/login_screen.dart';
+import 'screens/app_shell.dart';
+import 'services/auth_service.dart';
 import 'services/localization_service.dart';
 
-/// Main entry point of the Flutter application
-/// This function is called when the app starts
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LocalizationService.init();
-  runApp(const FarmBuddyApp());  // Run the app
+  await AuthService.init();
+  runApp(const AgroAssistApp());
 }
 
-/// Root widget of the application
-/// This is a StatelessWidget because it doesn't change
-class FarmBuddyApp extends StatelessWidget {
-  const FarmBuddyApp({super.key});
+class AgroAssistApp extends StatelessWidget {
+  const AgroAssistApp({super.key});
+
+  static const Color primaryGreen = Color(0xFF2ECC71);
+  static const Color darkGreen = Color(0xFF27AE60);
 
   @override
   Widget build(BuildContext context) {
@@ -21,37 +23,81 @@ class FarmBuddyApp extends StatelessWidget {
       valueListenable: LocalizationService.languageNotifier,
       builder: (context, language, _) {
         return MaterialApp(
-          title: LocalizationService.tr('Farm Buddy'),
+          title: 'AgroAssist',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             primarySwatch: Colors.green,
-            primaryColor: const Color(0xFF2ECC71),
+            primaryColor: primaryGreen,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: primaryGreen,
+              primary: primaryGreen,
+              secondary: darkGreen,
+            ),
+            scaffoldBackgroundColor: const Color(0xFFF5F7FA),
             appBarTheme: const AppBarTheme(
-              backgroundColor: Color(0xFF2ECC71),
+              backgroundColor: primaryGreen,
               foregroundColor: Colors.white,
-              elevation: 2,
+              elevation: 0,
+              centerTitle: true,
             ),
             cardTheme: CardThemeData(
-              elevation: 2,
+              elevation: 1,
+              margin: EdgeInsets.zero,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
+              color: Colors.white,
+            ),
+            inputDecorationTheme: InputDecorationTheme(
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: primaryGreen, width: 2),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Colors.red),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2ECC71),
+                backgroundColor: primaryGreen,
                 foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 56),
-                textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                minimumSize: const Size(double.infinity, 52),
+                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
+                elevation: 0,
               ),
+            ),
+            chipTheme: ChipThemeData(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            ),
+            dividerTheme: const DividerThemeData(
+              space: 1,
+              thickness: 1,
+              color: Color(0xFFEEEEEE),
             ),
             useMaterial3: true,
           ),
-          home: const HomeScreen(),
+          home: AuthService.session == null
+              ? const LoginScreen()
+              : const AppShell(),
         );
       },
     );

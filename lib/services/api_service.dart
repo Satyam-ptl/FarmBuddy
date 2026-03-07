@@ -5,18 +5,99 @@ import 'package:http/http.dart' as http;  // HTTP client for API calls
 /// This class provides methods to interact with your Django REST API
 class ApiService {
   // Base URL of your Django backend API
-  // TODO: Change this to your actual Django server URL
-  // For web browser: 'http://localhost:8000/api'
-  // For Android emulator: 'http://10.0.2.2:8000/api'
-  // For iOS simulator: 'http://localhost:8000/api'
-  // For physical device: 'http://YOUR_IP:8000/api' (e.g., 'http://192.168.1.5:8000/api')
-  static const String baseUrl = 'http://localhost:8000/api';
+  // Configure at runtime with:
+  // flutter run --dart-define=API_BASE_URL=http://192.168.1.107:8000/api
+  static const String _configuredBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://localhost:8000/api',
+  );
+
+  static String get baseUrl => _configuredBaseUrl.endsWith('/')
+      ? _configuredBaseUrl.substring(0, _configuredBaseUrl.length - 1)
+      : _configuredBaseUrl;
+
+  static String? _authToken;
+
+  static void setAuthToken(String? token) {
+    _authToken = token;
+  }
 
   // HTTP headers for JSON communication
-  static final Map<String, String> headers = {
-    'Content-Type': 'application/json',  // Tell server we send JSON
-    'Accept': 'application/json',  // Tell server we expect JSON response
-  };
+  static Map<String, String> get headers {
+    final map = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    if (_authToken != null && _authToken!.isNotEmpty) {
+      map['Authorization'] = 'Token $_authToken';
+    }
+
+    return map;
+  }
+
+  // ==================== AUTH API METHODS ====================
+
+  static Future<Map<String, dynamic>> login({
+    required String username,
+    required String password,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/login/'),
+        headers: headers,
+        body: json.encode({'username': username, 'password': password}),
+      );
+
+      if (response.statusCode == 200) {
+        return Map<String, dynamic>.from(json.decode(response.body) as Map);
+      }
+      throw Exception('Login failed: ${response.body}');
+    } catch (e) {
+      throw Exception('Error during login: $e');
+    }
+  }
+
+  static Future<Map<String, dynamic>> registerFarmer(
+    Map<String, dynamic> payload,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/farmer-register/'),
+        headers: headers,
+        body: json.encode(payload),
+      );
+
+      if (response.statusCode == 201) {
+        return Map<String, dynamic>.from(json.decode(response.body) as Map);
+      }
+      throw Exception('Registration failed: ${response.body}');
+    } catch (e) {
+      throw Exception('Error during registration: $e');
+    }
+  }
+
+  static Future<void> logout() async {
+    try {
+      await http.post(Uri.parse('$baseUrl/auth/logout/'), headers: headers);
+    } catch (_) {}
+  }
+
+  static Future<Map<String, dynamic>> getCurrentUser() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/auth/me/'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        return Map<String, dynamic>.from(json.decode(response.body) as Map);
+      }
+      throw Exception('Failed to load current user');
+    } catch (e) {
+      throw Exception('Error loading current user: $e');
+    }
+  }
 
   // ==================== CROPS API METHODS ====================
 
@@ -27,6 +108,7 @@ class ApiService {
     String? season,
     String? soilType,
     String? state,
+    String? search,
     int pageSize = 20,
   }) async {
     try {
@@ -40,6 +122,9 @@ class ApiService {
       }
       if (state != null && state.isNotEmpty) {
         url += '&state=${Uri.encodeQueryComponent(state.trim())}';
+      }
+      if (search != null && search.trim().isNotEmpty) {
+        url += '&search=${Uri.encodeQueryComponent(search.trim())}';
       }
 
       // Make GET request to Django API
@@ -136,10 +221,10 @@ class ApiService {
       String url = '$baseUrl/farmers/?page_size=$pageSize';
       
       if (city != null && city.isNotEmpty) {
-        url += '&city=$city';
+        url += '&city=${Uri.encodeQueryComponent(city.trim())}';
       }
       if (experience != null && experience.isNotEmpty) {
-        url += '&experience_level=$experience';
+        url += '&experience_level=${Uri.encodeQueryComponent(experience.trim())}';
       }
 
       final response = await http.get(Uri.parse(url), headers: headers);
@@ -233,7 +318,7 @@ class ApiService {
         url += '&farmer=$farmerId';
       }
       if (status != null && status.isNotEmpty) {
-        url += '&status=$status';
+        url += '&status=${Uri.encodeQueryComponent(status)}';
       }
 
       final response = await http.get(Uri.parse(url), headers: headers);
@@ -269,6 +354,48 @@ class ApiService {
     }
   }
 
+  /// Get list of farmer-crop relations (for task creation)
+  static Future<Map<String, dynamic>> getFarmerCrops({
+    int? farmerId,
+    int pageSize = 100,
+  }) async {
+    try {
+      String url = '$baseUrl/farmer-crops/?page_size=$pageSize';
+      if (farmerId != null) {
+        url += '&farmer=$farmerId';
+      }
+
+      final response = await http.get(Uri.parse(url), headers: headers);
+
+      if (response.statusCode == 200) {
+        return Map<String, dynamic>.from(json.decode(response.body) as Map);
+      }
+      throw Exception('Failed to load farmer crops');
+    } catch (e) {
+      throw Exception('Error fetching farmer crops: $e');
+    }
+  }
+
+  /// Create farmer-crop relation (farmer selects crop to grow)
+  static Future<Map<String, dynamic>> createFarmerCrop(
+    Map<String, dynamic> payload,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/farmer-crops/'),
+        headers: headers,
+        body: json.encode(payload),
+      );
+
+      if (response.statusCode == 201) {
+        return Map<String, dynamic>.from(json.decode(response.body) as Map);
+      }
+      throw Exception('Failed to create farmer crop: ${response.body}');
+    } catch (e) {
+      throw Exception('Error creating farmer crop: $e');
+    }
+  }
+
   /// Update task status
   /// [taskId] - ID of the task
   /// [status] - New status
@@ -291,6 +418,69 @@ class ApiService {
     }
   }
 
+  /// Partial update task fields (status/notes/completion/etc.)
+  static Future<Map<String, dynamic>> updateTask(
+    int taskId,
+    Map<String, dynamic> payload,
+  ) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('$baseUrl/tasks/$taskId/'),
+        headers: headers,
+        body: json.encode(payload),
+      );
+
+      if (response.statusCode == 200) {
+        return Map<String, dynamic>.from(json.decode(response.body) as Map);
+      }
+      throw Exception('Failed to update task: ${response.body}');
+    } catch (e) {
+      throw Exception('Error updating task: $e');
+    }
+  }
+
+  /// Get task reminders (optionally filtered by task id)
+  static Future<Map<String, dynamic>> getTaskReminders({
+    int? taskId,
+    int pageSize = 100,
+  }) async {
+    try {
+      String url = '$baseUrl/task-reminders/?page_size=$pageSize';
+      if (taskId != null) {
+        url += '&task=$taskId';
+      }
+
+      final response = await http.get(Uri.parse(url), headers: headers);
+      if (response.statusCode == 200) {
+        return Map<String, dynamic>.from(json.decode(response.body) as Map);
+      }
+      throw Exception('Failed to load task reminders');
+    } catch (e) {
+      throw Exception('Error fetching task reminders: $e');
+    }
+  }
+
+  /// Get task logs (optionally filtered by task id)
+  static Future<Map<String, dynamic>> getTaskLogs({
+    int? taskId,
+    int pageSize = 100,
+  }) async {
+    try {
+      String url = '$baseUrl/task-logs/?page_size=$pageSize';
+      if (taskId != null) {
+        url += '&task=$taskId';
+      }
+
+      final response = await http.get(Uri.parse(url), headers: headers);
+      if (response.statusCode == 200) {
+        return Map<String, dynamic>.from(json.decode(response.body) as Map);
+      }
+      throw Exception('Failed to load task logs');
+    } catch (e) {
+      throw Exception('Error fetching task logs: $e');
+    }
+  }
+
   // ==================== WEATHER API METHODS ====================
 
   /// Get weather data for a location
@@ -298,7 +488,7 @@ class ApiService {
   static Future<Map<String, dynamic>> getWeatherData(String location) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/weather-data/?location=$location'),
+        Uri.parse('$baseUrl/weather-data/?location=${Uri.encodeQueryComponent(location)}'),
         headers: headers,
       );
 
@@ -317,7 +507,7 @@ class ApiService {
     try {
       String url = '$baseUrl/weather-data/?page_size=$pageSize';
       if (location != null && location.isNotEmpty) {
-        url += '&location=$location';
+        url += '&location=${Uri.encodeQueryComponent(location)}';
       }
 
       final response = await http.get(
@@ -376,6 +566,25 @@ class ApiService {
     }
   }
 
+  /// Get total weather alert count
+  static Future<int> getWeatherAlertsCount() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/weather-alerts/?page_size=1'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = Map<String, dynamic>.from(json.decode(response.body) as Map);
+        return (data['count'] as num?)?.toInt() ?? 0;
+      }
+
+      throw Exception('Failed to load weather alert count');
+    } catch (e) {
+      throw Exception('Error fetching weather alert count: $e');
+    }
+  }
+
   /// Get weather forecast for a location
   /// [location] - Location name
   /// [days] - Number of days to forecast (default: 7)
@@ -383,7 +592,9 @@ class ApiService {
       String location, {int days = 7}) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/weather-forecast/?location=$location&days=$days'),
+        Uri.parse(
+          '$baseUrl/weather-forecast/?location=${Uri.encodeQueryComponent(location)}&days=$days',
+        ),
         headers: headers,
       );
 
