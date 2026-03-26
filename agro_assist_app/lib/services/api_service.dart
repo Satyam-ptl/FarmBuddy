@@ -1,26 +1,30 @@
 import 'dart:convert';  // For JSON encoding/decoding
 import 'package:http/http.dart' as http;  // HTTP client for API calls
 
+class ApiException implements Exception {
+  final String message;
+  const ApiException(this.message);
+
+  @override
+  String toString() => message;
+}
+
 /// API Service class to handle all Django backend communication
 /// This class provides methods to interact with your Django REST API
 class ApiService {
-  // Base URL of your Django backend API
-  // TODO: Change this to your actual Django server URL
-  // For web browser: 'http://localhost:8000/api'
-  // For Android emulator: 'http://10.0.2.2:8000/api'
-  // For iOS simulator: 'http://localhost:8000/api'
-  // For physical device: 'http://YOUR_IP:8000/api' (e.g., 'http://192.168.1.5:8000/api')
+  // Base URL of your Django backend API.
+  // Override using --dart-define=API_BASE_URL=<url> for local or staging builds.
   static final String baseUrl = _normalizeApiBaseUrl(
     const String.fromEnvironment(
       'API_BASE_URL',
-      defaultValue: 'http://localhost:8000/api',
+      defaultValue: 'https://agroassist-backend-api.vercel.app/api',
     ),
   );
 
   static String _normalizeApiBaseUrl(String value) {
     final trimmed = value.trim();
     if (trimmed.isEmpty) {
-      return 'http://localhost:8000/api';
+      return 'https://agroassist-backend-api.vercel.app/api';
     }
 
     final noTrailingSlash = trimmed.replaceAll(RegExp(r'/+$'), '');
@@ -45,6 +49,46 @@ class ApiService {
     headers['Authorization'] = 'Token $token';
   }
 
+  static Never _throwApiError(String fallbackMessage, http.Response response) {
+    String parsedMessage = fallbackMessage;
+
+    try {
+      final decoded = json.decode(response.body);
+
+      if (decoded is Map<String, dynamic>) {
+        final detail = decoded['detail'];
+        if (detail != null && detail.toString().trim().isNotEmpty) {
+          parsedMessage = detail.toString().trim();
+        } else {
+          final parts = <String>[];
+          decoded.forEach((_, value) {
+            if (value is List) {
+              for (final item in value) {
+                final text = item.toString().trim();
+                if (text.isNotEmpty) parts.add(text);
+              }
+            } else {
+              final text = value.toString().trim();
+              if (text.isNotEmpty) parts.add(text);
+            }
+          });
+          if (parts.isNotEmpty) {
+            parsedMessage = parts.join(' ');
+          }
+        }
+      } else if (decoded is List && decoded.isNotEmpty) {
+        parsedMessage = decoded.map((e) => e.toString()).join(' ');
+      }
+    } catch (_) {
+      final body = response.body.trim();
+      if (body.isNotEmpty && body.length < 220) {
+        parsedMessage = body;
+      }
+    }
+
+    throw ApiException(parsedMessage);
+  }
+
   static Future<Map<String, dynamic>> login({
     required String username,
     required String password,
@@ -62,9 +106,11 @@ class ApiService {
       if (response.statusCode == 200) {
         return Map<String, dynamic>.from(json.decode(response.body) as Map);
       }
-      throw Exception('Failed to login: ${response.body}');
+      _throwApiError('Login failed. Please check username/password.', response);
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw Exception('Error during login: $e');
+      throw const ApiException('Unable to login. Please check your internet connection.');
     }
   }
 
@@ -79,9 +125,11 @@ class ApiService {
       if (response.statusCode == 201) {
         return Map<String, dynamic>.from(json.decode(response.body) as Map);
       }
-      throw Exception('Failed to register farmer: ${response.body}');
+      _throwApiError('Signup failed. Please verify details and try again.', response);
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw Exception('Error registering farmer: $e');
+      throw const ApiException('Unable to create account. Please check your internet connection.');
     }
   }
 

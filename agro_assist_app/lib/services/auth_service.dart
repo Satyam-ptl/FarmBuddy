@@ -56,9 +56,21 @@ class AuthService {
     try {
       final currentUser = await ApiService.getCurrentUser();
       await _saveSessionFromPayload(currentUser, tokenOverride: token);
-    } catch (_) {
-      await logout();
+    } catch (error) {
+      if (_isUnauthorizedError(error)) {
+        await logout();
+      }
     }
+  }
+
+  static bool _isUnauthorizedError(Object error) {
+    final message = error.toString().toLowerCase();
+    return message.contains('401') ||
+        message.contains('403') ||
+        message.contains('unauthorized') ||
+        message.contains('forbidden') ||
+        message.contains('invalid token') ||
+        message.contains('token not valid');
   }
 
   static Future<AuthSession> login({

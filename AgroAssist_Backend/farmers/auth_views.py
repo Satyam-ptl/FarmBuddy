@@ -1,11 +1,11 @@
 from rest_framework import status
-from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .auth_serializers import FarmerRegistrationSerializer, LoginSerializer
 from .models import Farmer
+from .stateless_token_auth import issue_auth_token
 
 
 class FarmerRegisterView(APIView):
@@ -31,7 +31,6 @@ class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        Token.objects.filter(user=request.user).delete()
         return Response({"detail": "Logged out successfully."}, status=status.HTTP_200_OK)
 
 
@@ -44,7 +43,7 @@ class MeView(APIView):
         role = "admin" if (user.is_staff or user.is_superuser) else "farmer"
 
         payload = {
-            "token": Token.objects.get_or_create(user=user)[0].key,
+            "token": issue_auth_token(user),
             "id": user.id,
             "user_id": user.id,
             "username": user.username,

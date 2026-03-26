@@ -1,9 +1,9 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from rest_framework.authtoken.models import Token
 
 from .models import Farmer
+from .stateless_token_auth import issue_auth_token
 
 
 class LoginSerializer(serializers.Serializer):
@@ -20,12 +20,12 @@ class LoginSerializer(serializers.Serializer):
         if not user.is_active:
             raise serializers.ValidationError("User account is inactive.")
 
-        token, _ = Token.objects.get_or_create(user=user)
+        token = issue_auth_token(user)
         farmer = Farmer.objects.filter(email__iexact=user.email).first()
         role = "admin" if (user.is_staff or user.is_superuser) else "farmer"
 
         attrs["payload"] = {
-            "token": token.key,
+            "token": token,
             "user_id": user.id,
             "username": user.username,
             "role": role,
@@ -110,9 +110,9 @@ class FarmerRegistrationSerializer(serializers.Serializer):
             contact_method="WhatsApp",
         )
 
-        token, _ = Token.objects.get_or_create(user=user)
+        token = issue_auth_token(user)
         return {
-            "token": token.key,
+            "token": token,
             "user_id": user.id,
             "username": user.username,
             "role": "farmer",

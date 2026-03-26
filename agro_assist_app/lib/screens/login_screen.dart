@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = 'Login failed. Please check username/password.';
+        _error = e.toString();
       });
     } finally {
       if (mounted) {

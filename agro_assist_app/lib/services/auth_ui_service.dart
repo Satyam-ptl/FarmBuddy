@@ -7,8 +7,13 @@ class AuthUiService {
   static bool isUnauthorizedError(Object error) {
     final message = error.toString().toLowerCase();
     return message.contains('401') ||
+      message.contains('403') ||
         message.contains('unauthorized') ||
-        message.contains('forbidden');
+      message.contains('forbidden') ||
+      message.contains('authentication credentials were not provided') ||
+      message.contains('invalid token') ||
+      message.contains('token is invalid') ||
+      message.contains('token not valid');
   }
 
   static Future<void> forceLogout(

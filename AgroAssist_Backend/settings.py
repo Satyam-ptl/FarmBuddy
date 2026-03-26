@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
+import shutil
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,9 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-p1u)28far1c54=i317fv&bp%wdupup0*yz_y!44^dls0v5fz1c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = []
+allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.vercel.app']
 
 
 # Application definition
@@ -80,10 +85,19 @@ WSGI_APPLICATION = 'AgroAssist_Backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+if os.getenv('VERCEL') == '1':
+    source_db = BASE_DIR / 'db.sqlite3'
+    runtime_db = Path('/tmp/db.sqlite3')
+    if source_db.exists() and not runtime_db.exists():
+        shutil.copy2(source_db, runtime_db)
+    db_name = runtime_db
+else:
+    db_name = BASE_DIR / 'db.sqlite3'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': db_name,
     }
 }
 
@@ -132,8 +146,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ==================== CORS CONFIGURATION ====================
 # CORS (Cross-Origin Resource Sharing) allows Flutter app to connect to Django API
 
-# Allow all origins during development (change this in production!)
-CORS_ALLOW_ALL_ORIGINS = True  # Allow requests from any domain (Flutter app, web browser, etc.)
+# Allow all origins only when explicitly enabled (or by default in debug mode).
+cors_allow_all_default = 'True' if DEBUG else 'False'
+CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', cors_allow_all_default).lower() == 'true'
+
+cors_allowed_origins_env = os.getenv('CORS_ALLOWED_ORIGINS', '')
+if cors_allowed_origins_env:
+    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_allowed_origins_env.split(',') if origin.strip()]
+
+csrf_trusted_origins_env = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+if csrf_trusted_origins_env:
+    CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_trusted_origins_env.split(',') if origin.strip()]
 
 # For production, use specific origins instead:
 # CORS_ALLOWED_ORIGINS = [
@@ -178,7 +201,7 @@ REST_FRAMEWORK = {
     
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+        'AgroAssist_Backend.farmers.stateless_token_auth.StatelessTokenAuthentication',
     ],
     
     # Permissions - require authentication by default (FIXED from AllowAny)

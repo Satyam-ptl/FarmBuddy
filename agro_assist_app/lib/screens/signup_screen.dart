@@ -66,7 +66,7 @@ class _SignupScreenState extends State<SignupScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = 'Signup failed: ${e.toString()}';
+        _error = e.toString();
       });
     } finally {
       if (mounted) {
