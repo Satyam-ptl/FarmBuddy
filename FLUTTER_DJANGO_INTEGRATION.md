@@ -1,6 +1,6 @@
-# Farm Buddy - Flutter + Django Integration Guide
+﻿# Farm Buddy - Flutter + Django Integration Guide
 
-## 📋 Project Overview
+## ðŸ“‹ Project Overview
 
 **Farm Buddy** is a complete Full Stack application with:
 - **Backend**: Django 6.0.2 + Django REST Framework (Python)
@@ -8,39 +8,39 @@
 - **Database**: SQLite3 (can switch to MySQL)
 - **API**: RESTful API with JSON responses
 
-## 🏗️ Architecture
+## ðŸ—ï¸ Architecture
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                  Flutter Mobile App                  │
-│  (Android/iOS - lib/screens, lib/models, etc.)      │
-└───────────────────┬─────────────────────────────────┘
-                    │
-                    │ HTTP Requests (JSON)
-                    │ GET, POST, PUT, PATCH, DELETE
-                    │
-┌───────────────────▼─────────────────────────────────┐
-│              Django REST API Backend                 │
-│         (ViewSets, Serializers, Models)             │
-└───────────────────┬─────────────────────────────────┘
-                    │
-                    │ ORM Queries
-                    │
-┌───────────────────▼─────────────────────────────────┐
-│                  SQLite Database                     │
-│     (Crops, Farmers, Tasks, Weather tables)         │
-└─────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                  Flutter Mobile App                  â”‚
+â”‚  (Android/iOS - lib/screens, lib/models, etc.)      â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚
+                    â”‚ HTTP Requests (JSON)
+                    â”‚ GET, POST, PUT, PATCH, DELETE
+                    â”‚
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚              Django REST API Backend                 â”‚
+â”‚         (ViewSets, Serializers, Models)             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚
+                    â”‚ ORM Queries
+                    â”‚
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                  SQLite Database                     â”‚
+â”‚     (Crops, Farmers, Tasks, Weather tables)         â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
-## 🔌 How They Connect
+## ðŸ”Œ How They Connect
 
 ### 1. Django Backend Setup
 
-**Location**: `D:\git\FarmBuddy\`
+**Location**: `D:\git\AgroAssist\`
 
 **Key Configuration Changes Made:**
 
-**File**: `FarmBuddy_Backend/settings.py`
+**File**: `AgroAssist_Backend/settings.py`
 ```python
 # CORS middleware added to allow Flutter app connections
 MIDDLEWARE = [
@@ -71,7 +71,7 @@ REST_FRAMEWORK = {
 
 ### 2. Flutter App Setup
 
-**Location**: `D:\git\FarmBuddy\farm_buddy_app\`
+**Location**: `D:\git\AgroAssist\agro_assist_app\`
 
 **API Service Configuration:**
 
@@ -110,7 +110,7 @@ Future<Map<String, dynamic>> getCrops({String? season}) async {
 }
 ```
 
-## 🌐 API Endpoints Used by Flutter
+## ðŸŒ API Endpoints Used by Flutter
 
 ### Crops Endpoints
 
@@ -144,7 +144,7 @@ Future<Map<String, dynamic>> getCrops({String? season}) async {
 | `ApiService.getWeatherData(location)` | `GET /api/weather-data/?location=X` | Get weather data |
 | `ApiService.getWeatherAlerts(farmerId)` | `GET /api/weather-alerts/?farmer=X` | Get alerts for farmer |
 
-## 📱 Flutter Screens → Django APIs
+## ðŸ“± Flutter Screens â†’ Django APIs
 
 ### Home Screen (Dashboard)
 **File**: `lib/screens/home_screen.dart`
@@ -164,9 +164,9 @@ loadDashboardData() async {
 ```
 
 **Django APIs called:**
-- `/api/crops/?page_size=1` → Returns `{count: 50, results: [...]}`
-- `/api/farmers/?page_size=1` → Returns `{count: 25, results: [...]}`
-- `/api/tasks/?status=Pending&page_size=1` → Returns `{count: 10, results: [...]}`
+- `/api/crops/?page_size=1` â†’ Returns `{count: 50, results: [...]}`
+- `/api/farmers/?page_size=1` â†’ Returns `{count: 25, results: [...]}`
+- `/api/tasks/?status=Pending&page_size=1` â†’ Returns `{count: 10, results: [...]}`
 
 ### Crops Screen
 **File**: `lib/screens/crops_screen.dart`
@@ -239,7 +239,7 @@ Future<Map<String, dynamic>> updateTaskStatus(int taskId, String status) async {
 4. Updates database: `FarmerTask.objects.filter(id=5).update(status='Completed')`
 5. Returns updated task as JSON response
 
-## 🔄 Data Flow Example
+## ðŸ”„ Data Flow Example
 
 Let's trace a complete flow: **Creating a new farmer**
 
@@ -358,18 +358,18 @@ try {
 }
 ```
 
-## 🚀 Running Both Together
+## ðŸš€ Running Both Together
 
 ### Terminal 1: Start Django Backend
 
 ```powershell
-cd D:\git\FarmBuddy
+cd D:\git\AgroAssist
 python manage.py runserver 0.0.0.0:8000
 ```
 
 **Output:**
 ```
-Django version 6.0.2, using settings 'FarmBuddy_Backend.settings'
+Django version 6.0.2, using settings 'AgroAssist_Backend.settings'
 Starting development server at http://0.0.0.0:8000/
 Quit the server with CTRL-BREAK.
 ```
@@ -382,7 +382,7 @@ Quit the server with CTRL-BREAK.
 ### Terminal 2: Start Flutter App
 
 ```powershell
-cd D:\git\FarmBuddy\farm_buddy_app
+cd D:\git\AgroAssist\agro_assist_app
 flutter run
 ```
 
@@ -390,7 +390,7 @@ flutter run
 ```
 Launching lib\main.dart on Android SDK built for x86 in debug mode...
 Running Gradle task 'assembleDebug'...
-✓ Built build\app\outputs\flutter-apk\app-debug.apk.
+âœ“ Built build\app\outputs\flutter-apk\app-debug.apk.
 Installing build\app\outputs\flutter-apk\app.apk...
 Syncing files to device Android SDK built for x86...
 ```
@@ -406,29 +406,29 @@ Syncing files to device Android SDK built for x86...
 
 This shows Flutter app successfully making API requests!
 
-## 🔒 Security Considerations
+## ðŸ”’ Security Considerations
 
 ### Current Setup (Development)
 
 ```python
 # settings.py
-DEBUG = True  ⚠️ Shows detailed errors
-CORS_ALLOW_ALL_ORIGINS = True  ⚠️ Anyone can access API
-ALLOWED_HOSTS = []  ⚠️ Only localhost
-DEFAULT_PERMISSION_CLASSES = ['rest_framework.permissions.AllowAny']  ⚠️ No login
+DEBUG = True  âš ï¸ Shows detailed errors
+CORS_ALLOW_ALL_ORIGINS = True  âš ï¸ Anyone can access API
+ALLOWED_HOSTS = []  âš ï¸ Only localhost
+DEFAULT_PERMISSION_CLASSES = ['rest_framework.permissions.AllowAny']  âš ï¸ No login
 ```
 
 ### Production Setup (TODO)
 
 ```python
 # settings.py for production
-DEBUG = False  ✅ Hide error details
+DEBUG = False  âœ… Hide error details
 CORS_ALLOWED_ORIGINS = [
-    'https://your-app.com',  ✅ Only specific domains
+    'https://your-app.com',  âœ… Only specific domains
 ]
-ALLOWED_HOSTS = ['your-domain.com']  ✅ Only your domain
+ALLOWED_HOSTS = ['your-domain.com']  âœ… Only your domain
 DEFAULT_PERMISSION_CLASSES = [
-    'rest_framework.permissions.IsAuthenticated',  ✅ Login required
+    'rest_framework.permissions.IsAuthenticated',  âœ… Login required
 ]
 
 # Add token authentication
@@ -444,9 +444,9 @@ DEFAULT_AUTHENTICATION_CLASSES = [
 - SQL injection protection (Django ORM handles this)
 - JWT tokens for mobile apps
 
-## 📊 Models Schema Mapping
+## ðŸ“Š Models Schema Mapping
 
-### Django Model → Flutter Model
+### Django Model â†’ Flutter Model
 
 **Django** (`farmers/models.py`):
 ```python
@@ -459,9 +459,9 @@ class Farmer(models.Model):
 **Flutter** (`lib/models/farmer_model.dart`):
 ```dart
 class Farmer {
-  final String firstName;  // Maps to first_name (snake_case → camelCase)
-  final double landAreaHectares;  // DecimalField → double
-  final DateTime createdAt;  // DateTimeField → DateTime
+  final String firstName;  // Maps to first_name (snake_case â†’ camelCase)
+  final double landAreaHectares;  // DecimalField â†’ double
+  final DateTime createdAt;  // DateTimeField â†’ DateTime
   
   // Convert JSON from Django to Flutter object
   factory Farmer.fromJson(Map<String, dynamic> json) {
@@ -483,7 +483,7 @@ class Farmer {
 }
 ```
 
-## 🧪 Testing the Integration
+## ðŸ§ª Testing the Integration
 
 ### Test 1: Check Django API in Browser
 
@@ -510,16 +510,16 @@ void initState() {
 Future<void> testConnection() async {
   try {
     final response = await ApiService.getCrops(pageSize: 1);
-    print('✅ Connected to Django! Count: ${response['count']}');
+    print('âœ… Connected to Django! Count: ${response['count']}');
   } catch (e) {
-    print('❌ Connection failed: $e');
+    print('âŒ Connection failed: $e');
   }
 }
 ```
 
 **Check Flutter console for output.**
 
-## 📱 Device-Specific Configuration
+## ðŸ“± Device-Specific Configuration
 
 ### Android Emulator
 ```dart
@@ -548,7 +548,7 @@ Look for "IPv4 Address" under your WiFi adapter (e.g., 192.168.1.5)
 ### Physical iOS Device (WiFi)
 Same as Android - use your computer's IP address
 
-## 📦 Required Packages
+## ðŸ“¦ Required Packages
 
 ### Django Backend
 ```bash
@@ -574,7 +574,7 @@ Install with:
 flutter pub get
 ```
 
-## 🎓 Learning Path
+## ðŸŽ“ Learning Path
 
 For students learning this integration:
 
@@ -585,7 +585,7 @@ For students learning this integration:
 
 2. **Django Side**
    - Models define database structure
-   - Serializers convert models ↔ JSON
+   - Serializers convert models â†” JSON
    - ViewSets handle API logic
    - URLconf routes requests
 
@@ -596,9 +596,9 @@ For students learning this integration:
    - State management updates UI
 
 4. **Data Flow**
-   - User action → API call → HTTP request → Django processes → Database update → JSON response → Flutter updates UI
+   - User action â†’ API call â†’ HTTP request â†’ Django processes â†’ Database update â†’ JSON response â†’ Flutter updates UI
 
-## 🛠️ Troubleshooting
+## ðŸ› ï¸ Troubleshooting
 
 ### Problem: "Connection refused"
 **Solution:** Check Django is running on `0.0.0.0:8000`, not `127.0.0.1:8000`
@@ -614,13 +614,14 @@ For students learning this integration:
 
 ---
 
-**📚 This integration demonstrates:**
-- ✅ Full Stack development (Backend + Mobile Frontend)
-- ✅ RESTful API design
-- ✅ Cross-platform mobile development
-- ✅ CRUD operations over HTTP
-- ✅ JSON serialization/deserialization
-- ✅ State management in Flutter
-- ✅ Django ORM and database design
+**ðŸ“š This integration demonstrates:**
+- âœ… Full Stack development (Backend + Mobile Frontend)
+- âœ… RESTful API design
+- âœ… Cross-platform mobile development
+- âœ… CRUD operations over HTTP
+- âœ… JSON serialization/deserialization
+- âœ… State management in Flutter
+- âœ… Django ORM and database design
 
-**Happy Learning! 🚀**
+**Happy Learning! ðŸš€**
+

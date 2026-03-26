@@ -12,7 +12,7 @@ This guide explains what important files do in simple terms.
 - `FLUTTER_DJANGO_INTEGRATION.md`: Frontend-backend integration notes.
 - `db.sqlite3`: Local development database.
 
-## Backend Folder: `FarmBuddy_Backend/`
+## Backend Folder: `AgroAssist_Backend/`
 
 - `settings.py`: Main Django settings (apps, middleware, DB, REST config).
 - `urls.py`: API route registration.
@@ -50,7 +50,7 @@ This guide explains what important files do in simple terms.
 - `views.py`: Weather endpoint logic.
 - `migrations/`: Schema history for weather.
 
-## Frontend Folder: `farm_buddy_app/`
+## Frontend Folder: `agro_assist_app/`
 
 - `pubspec.yaml`: Flutter dependencies and app metadata.
 - `lib/main.dart`: App start, theme, and first route logic.
@@ -76,5 +76,6 @@ This guide explains what important files do in simple terms.
 
 1. `README.md`
 2. `PROJECT_SUMMARY.md`
-3. `farm_buddy_app/README.md`
+3. `agro_assist_app/README.md`
 4. This file when you need quick file-purpose clarity
+

@@ -17,7 +17,7 @@ Primary domains:
 
 ## High-Level Architecture
 
-- Client: Flutter app (`farm_buddy_app`)
+- Client: Flutter app (`agro_assist_app`)
 - API: Django REST endpoints under `/api/`
 - Data layer: Django ORM with SQLite by default
 
@@ -30,16 +30,16 @@ Data flow:
 
 ## Backend Modules
 
-- `FarmBuddy_Backend/crops/`: crop records, recommendations, related operations
-- `FarmBuddy_Backend/farmers/`: farmer profiles and farmer-linked crop data
-- `FarmBuddy_Backend/tasks/`: task creation, validation, status updates
-- `FarmBuddy_Backend/weather/`: weather alerts and forecast data
+- `AgroAssist_Backend/crops/`: crop records, recommendations, related operations
+- `AgroAssist_Backend/farmers/`: farmer profiles and farmer-linked crop data
+- `AgroAssist_Backend/tasks/`: task creation, validation, status updates
+- `AgroAssist_Backend/weather/`: weather alerts and forecast data
 
 Cross-cutting backend pieces:
 
-- `FarmBuddy_Backend/settings.py`: installed apps, middleware, REST config
-- `FarmBuddy_Backend/urls.py`: API routing
-- `FarmBuddy_Backend/templates/`: dashboard pages and static integration
+- `AgroAssist_Backend/settings.py`: installed apps, middleware, REST config
+- `AgroAssist_Backend/urls.py`: API routing
+- `AgroAssist_Backend/templates/`: dashboard pages and static integration
 
 ## Frontend Modules
 
@@ -69,3 +69,4 @@ Cross-cutting backend pieces:
 2. Run frontend with explicit `API_BASE_URL` define.
 3. Execute `flutter analyze` and `flutter test` before pushing changes.
 4. Keep docs synchronized with code-level behavior changes.
+
